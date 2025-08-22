@@ -1,6 +1,6 @@
 @font-face {
   font-family: "milkyway";
-  src: url("assets/milkyway.ttf") format("truetype");
+  src: url("../assets/milkyway.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -8,6 +8,8 @@
 h1 {
   font-family: "milkyway";
   font-weight: 200;
+  color: #1765f9;
+  text-align: center;
 }
 
 input {
@@ -17,6 +19,7 @@ input {
   font-family: "milkyway";
   text-align: center;
   font-size: inherit;
+  color: #1765f9;
 }
 
 table {
@@ -37,9 +40,7 @@ td:nth-child(3),
 td:nth-child(6) {
   border-right: 2px solid black;
 }
-
 tr:nth-child(3) td,
 tr:nth-child(6) td {
   border-bottom: 2px solid black;
 }
-
