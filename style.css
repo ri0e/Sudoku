@@ -1,6 +1,6 @@
 @font-face {
   font-family: "milkyway";
-  src: url("../assets/milkyway.ttf") format("truetype");
+  src: url("assets/milkyway.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -44,3 +44,4 @@ tr:nth-child(3) td,
 tr:nth-child(6) td {
   border-bottom: 2px solid black;
 }
+
