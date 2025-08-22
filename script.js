@@ -1,4 +1,4 @@
-console.log("hi get out of console >w<*");
+console.log("hi get out of the console ( > w <* )");
 
 // Number of numbers on the board
 let clues = 30;
@@ -125,7 +125,19 @@ function renderSudoku(grid) {
     let row = document.createElement("tr");
     for (let j = 0; j < 9; j++) {
       let cell = document.createElement("td");
-      cell.textContent = grid[i][j] !== 0 ? grid[i][j] : "";
+      if (grid[i][j] !== 0) {
+        cell.textContent = grid[i][j]; // clue
+      } else {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.maxLength = 1;
+        // only allow numbers 1–9
+        input.addEventListener("input", () => {
+          input.value = input.value.replace(/[^1-9]/g, "");
+        });
+        cell.appendChild(input);
+      }
+
       row.appendChild(cell);
     }
     table.appendChild(row);
