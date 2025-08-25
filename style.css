@@ -5,6 +5,17 @@
   font-style: normal;
 }
 
+#message {
+  text-align: center;
+}
+
+.btn-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
 h1 {
   font-family: "milkyway";
   font-weight: 200;
@@ -22,6 +33,11 @@ input {
   color: #1765f9;
 }
 
+input:active {
+  outline: none;
+  border: none;
+}
+
 table {
   border-collapse: collapse;
   margin: 20px auto;
@@ -35,13 +51,25 @@ td {
   font-size: 1.3rem;
 }
 
-/* Thick borders for boxes 3x3 */
-td:nth-child(3),
-td:nth-child(6) {
-  border-right: 2px solid black;
+/* Outline of the board */
+tr:first-child td {
+  border-top: 2px solid #000;
 }
-tr:nth-child(3) td,
-tr:nth-child(6) td {
-  border-bottom: 2px solid black;
+tr:last-child td {
+  border-bottom: 2px solid #000;
+}
+td:first-child {
+  border-left: 2px solid #000;
+}
+td:last-child {
+  border-right: 2px solid #000;
 }
 
+tr:nth-child(3n) td {
+  border-bottom: 2px solid #000;
+}
+
+/* Every 3 columns (vertical box borders) */
+td:nth-child(3n) {
+  border-right: 2px solid #000;
+}
