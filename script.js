@@ -36,7 +36,7 @@ function generateNewSudoku() {
   solution = result.solution;
   renderSudoku(currentSudoku);
   showMessage(
-    `New ${currentDifficulty} Sudoku puzzle generated with ${result.clues} clues!`,
+    `New ${currentDifficulty} Sudoku puzzle generated`,
     "success"
   );
 }
@@ -248,3 +248,4 @@ function renderSudoku(grid) {
 window.onload = function () {
   generateNewSudoku();
 };
+
