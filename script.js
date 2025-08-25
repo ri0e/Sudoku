@@ -1,7 +1,45 @@
 console.log("hi get out of the console ( > w <* )");
 
-// Number of numbers on the board
-let clues = 30;
+// Vars
+let currentDifficulty = "easy";
+let solution = [];
+let currentSudoku = [];
+
+// Show a message to the user
+function showMessage(text, type) {
+  const messageEl = document.getElementById("message");
+  messageEl.textContent = text;
+  messageEl.className = type;
+}
+
+// Set the difficulty level
+function setDifficulty(difficulty) {
+  currentDifficulty = difficulty;
+
+  // Update buttons
+  document.querySelectorAll(".difficulty-btn").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+
+  document
+    .querySelector(`.difficulty-btn.${difficulty}`)
+    .classList.add("active");
+
+  // Generate new puzzle
+  generateNewSudoku();
+}
+
+// Generate a new Sudoku puzzle based on the current difficulty
+function generateNewSudoku() {
+  const result = sudokuLevel(currentDifficulty);
+  currentSudoku = result.sudokuCopy;
+  solution = result.solution;
+  renderSudoku(currentSudoku);
+  showMessage(
+    `New ${currentDifficulty} Sudoku puzzle generated with ${result.clues} clues!`,
+    "success"
+  );
+}
 
 // Checks if placing a number is valid
 function isSafe(grid, row, col, num) {
@@ -34,24 +72,43 @@ function shuffleArray(arr) {
   return arr;
 }
 
-// Solving the Sudoku with backtracking
-function solveSudoku(grid) {
-  for (let row = 0; row < 9; row++) {
-    for (let col = 0; col < 9; col++) {
-      if (grid[row][col] === 0) {
-        let nums = shuffleArray([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-        for (let num of nums) {
-          if (isSafe(grid, row, col, num)) {
-            grid[row][col] = num;
-            if (solveSudoku(grid)) return true;
-            grid[row][col] = 0;
+// Solving the Sudoku with backtracking and counting the solutions
+function solveSudoku(grid, countSolutions = false) {
+  let solutions = 0;
+  function solve() {
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        if (grid[row][col] === 0) {
+          let nums = shuffleArray([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+          for (let num of nums) {
+            if (isSafe(grid, row, col, num)) {
+              grid[row][col] = num;
+
+              if (countSolutions) {
+                solve();
+              } else {
+                if (solve()) return true;
+              }
+
+              grid[row][col] = 0;
+            }
           }
+          return false;
         }
-        return false;
       }
     }
+    if (countSolutions) {
+      solutions++;
+      return false;
+    }
+    return true;
   }
-  return true;
+  if (countSolutions) {
+    solve();
+    return solutions;
+  } else {
+    return solve();
+  }
 }
 
 // Fill diagonal boxes first (they are independent)
@@ -73,71 +130,111 @@ function fillBox(grid, startRow, startCol) {
   }
 }
 
-// Remove numbers to create the puzzle
-function removeNumbers(grid, cluesToKeep) {
-  let count = 81 - cluesToKeep;
-  let attempts = 0;
-  const maxAttempts = 200;
-
-  while (count > 0 && attempts < maxAttempts) {
-    let row = Math.floor(Math.random() * 9);
-    let col = Math.floor(Math.random() * 9);
-
-    if (grid[row][col] !== 0) {
-      let backup = grid[row][col];
-      grid[row][col] = 0;
-
-      // Copy the grid to check if puzzle still solvable
-      let tempGrid = JSON.parse(JSON.stringify(grid));
-
-      if (solveSudoku(tempGrid)) {
-        count--;
-      } else {
-        grid[row][col] = backup;
-      }
-    }
-    attempts++;
-  }
+// Count solutions for uniqueness
+function countSolutions(grid) {
+  // Deep copy
+  const gridCopy = JSON.parse(JSON.stringify(grid));
+  return solveSudoku(gridCopy, true);
 }
 
-function generateSudoku() {
-  let grid = Array.from({ length: 9 }, () => Array(9).fill(0));
+// Generate Sudoku based on difficulty
+function sudokuLevel(difficulty) {
+  // Difficulty levels
+  const difficultyLevels = {
+    easy: { minClues: 36, maxClues: 40 },
+    medium: { minClues: 30, maxClues: 35 },
+    hard: { minClues: 25, maxClues: 29 },
+    expert: { minClues: 22, maxClues: 24 },
+  };
 
-  // Fill diagonal boxes first
-  fillDiagonalBoxes(grid);
+  const { minClues, maxClues } = difficultyLevels[difficulty];
+  const cluesToKeep =
+    Math.floor(Math.random() * (minClues - maxClues + 1)) + minClues;
 
-  // Solve the complete puzzle
-  solveSudoku(grid);
+  let validSudoku = false;
+  let grid, sudokuCopy, solutionCopy;
+  let attempts = 0;
 
-  // Remove numbers to create the puzzle
-  removeNumbers(grid, clues);
+  // Keep trying until a valid Sudoku is created (with a unique solution)
+  while (!validSudoku && attempts < 5) {
+    attempts++;
 
-  return grid;
+    // Generate a complete Sudoku
+    grid = Array.from({ length: 9 }, () => Array(9).fill(0));
+    fillDiagonalBoxes(grid);
+    solveSudoku(grid);
+
+    solutionCopy = JSON.parse(JSON.stringify(grid));
+    sudokuCopy = JSON.parse(JSON.stringify(grid));
+
+    // Remove nums while ensuring uniqueness
+    let count = 81 - cluesToKeep;
+    let removalAttempts = 0;
+    const maxRemovalAttempts = 50;
+
+    while (count > 0 && removalAttempts < maxRemovalAttempts) {
+      let row = Math.floor(Math.random() * 9);
+      let col = Math.floor(Math.random() * 9);
+
+      if (sudokuCopy[row][col] !== 0) {
+        let backup = sudokuCopy[row][col];
+        sudokuCopy[row][col] = 0;
+
+        // Check if the Sudoku still has one solution
+        let tempGrid = JSON.parse(JSON.stringify(sudokuCopy));
+        const numSulotions = countSolutions(tempGrid);
+
+        if (numSulotions === 1) {
+          count--;
+        } else {
+          sudokuCopy[row][col] = backup;
+        }
+      }
+      removalAttempts++;
+    }
+    // Final validation
+    const tempGrid = JSON.parse(JSON.stringify(sudokuCopy));
+
+    if (countSolutions(tempGrid) === 1) {
+      validSudoku = true;
+    }
+  }
+  if (!validSudoku) {
+    // Fallback: return a simpler puzzle if we couldn't generate a valid one
+    return sudokuLevel("easy");
+  }
+  return {
+    sudokuCopy,
+    solution: solutionCopy,
+    difficulty,
+    clues: cluesToKeep,
+  };
 }
 
 // Rendering The Sudoku
 function renderSudoku(grid) {
   let container = document.getElementById("board");
   let table = document.createElement("table");
-  table.id = "table";
 
   for (let i = 0; i < 9; i++) {
     let row = document.createElement("tr");
+
     for (let j = 0; j < 9; j++) {
       let cell = document.createElement("td");
+
       if (grid[i][j] !== 0) {
         cell.textContent = grid[i][j]; // clue
       } else {
         const input = document.createElement("input");
         input.type = "text";
         input.maxLength = 1;
+
         // only allow numbers 1–9
         input.addEventListener("input", () => {
           input.value = input.value.replace(/[^1-9]/g, "");
         });
         cell.appendChild(input);
       }
-
       row.appendChild(cell);
     }
     table.appendChild(row);
@@ -148,5 +245,6 @@ function renderSudoku(grid) {
 }
 
 // Generate and render
-let sudoku = generateSudoku();
-renderSudoku(sudoku);
+window.onload = function () {
+  generateNewSudoku();
+};
