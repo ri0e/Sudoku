@@ -9,8 +9,26 @@
   </head>
   <body>
     <h1>Sukii</h1>
+    <p id="message"></p>
+
+    <div class="btn-container">
+      <button
+        class="difficulty-btn easy active"
+        onclick="setDifficulty('easy')"
+      >
+        easy
+      </button>
+      <button class="difficulty-btn medium" onclick="setDifficulty('medium')">
+        medium
+      </button>
+      <button class="difficulty-btn hard" onclick="setDifficulty('hard')">
+        hard
+      </button>
+      <button class="difficulty-btn expert" onclick="setDifficulty('expert')">
+        expert
+      </button>
+    </div>
+
     <div id="board"></div>
-    <div id="table"></div>
   </body>
 </html>
-
